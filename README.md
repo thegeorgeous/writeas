@@ -19,7 +19,7 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+The full API Documentation is available [here](https://developers.write.as/docs/api/)
 
 ## Development
 
