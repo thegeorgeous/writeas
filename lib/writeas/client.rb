@@ -55,6 +55,17 @@ module Writeas
       end
     end
 
+    def retrieve_post(post_id:)
+      response = @conn.get("/api/posts/#{post_id}")
+
+      if error_response?(response)
+        raise ClientError.new(response.reason_phrase, response.status)
+      else
+        post = Writeas::Post.new(response.body)
+        return post
+      end
+    end
+
     private 
 
     def error_response?(response)
