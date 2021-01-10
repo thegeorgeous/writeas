@@ -40,9 +40,9 @@ RSpec.describe Writeas do
         200,
         { 'Content-Type': 'application/javascript' },
         '
-          { "code": 201, 
+          { "code": 201,
             "data": {
-                      "id": "rf3t35fkax0aw", 
+                      "id": "rf3t35fkax0aw",
                       "slug": null,
                       "token": "ozPEuJWYK8L1QsysBUcTUKy9za7yqQ4M",
                       "appearance": "norm",
@@ -76,9 +76,9 @@ RSpec.describe Writeas do
         200,
         { 'Content-Type': 'application/javascript' },
         '
-          { "code": 200, 
+          { "code": 200,
             "data": {
-                      "id": "rf3t35fkax0aw", 
+                      "id": "rf3t35fkax0aw",
                       "slug": null,
                       "token": "ozPEuJWYK8L1QsysBUcTUKy9za7yqQ4M",
                       "appearance": "norm",
@@ -113,9 +113,9 @@ RSpec.describe Writeas do
         200,
         { 'Content-Type': 'application/javascript' },
         '
-          { "code": 200, 
+          { "code": 200,
             "data": {
-                      "id": "rf3t35fkax0aw", 
+                      "id": "rf3t35fkax0aw",
                       "slug": null,
                       "token": "ozPEuJWYK8L1QsysBUcTUKy9za7yqQ4M",
                       "appearance": "norm",
@@ -132,13 +132,28 @@ RSpec.describe Writeas do
     end
 
     response = client.update_post(
-      post_id: 'rf3t35fkax0aw', 
-      body: "My post is updated.", 
+      post_id: 'rf3t35fkax0aw',
+      body: "My post is updated.",
       token: "ozPEuJWYK8L1QsysBUcTUKy9za7yqQ4M"
     )
 
     expect(response.code).to eq 200
     expect(response.title).to eq "My First Post"
     expect(response.body).to eq "My post is updated."
+  end
+
+ it "deletes a post" do
+    client.conn = conn
+    stubs.delete('/api/posts/rf3t35fkax0aw') do |env|
+      expect(env.url.path).to eq('/api/posts/rf3t35fkax0aw')
+      [204]
+    end
+
+    response = client.delete_post(
+      post_id: 'rf3t35fkax0aw',
+      token: "ozPEuJWYK8L1QsysBUcTUKy9za7yqQ4M"
+    )
+
+    expect(response).to be_truthy
   end
 end

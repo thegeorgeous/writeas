@@ -86,6 +86,16 @@ module Writeas
       end
     end
 
+    def delete_post(post_id:, token:)
+      response = @conn.delete("/api/posts/#{post_id}", {token: token})
+
+      if error_response?(response)
+        raise ClientError.new(response.reason_phrase, response.status)
+      else
+        return true
+      end
+    end
+
     private
 
     def error_response?(response)
