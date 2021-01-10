@@ -66,7 +66,27 @@ module Writeas
       end
     end
 
-    private 
+    def update_post(post_id:, body:, token:, title: nil, font: nil, lang: nil, rtl: nil)
+      request_body = {
+        body: body,
+        token: token,
+        title: title,
+        font: font,
+        lang: lang,
+        rtl: rtl
+      }
+
+      response = @conn.post("/api/posts/#{post_id}", request_body.to_json)
+
+      if error_response?(response)
+        raise ClientError.new(response.reason_phrase, response.status)
+      else
+        post = Writeas::Post.new(response.body)
+        return post
+      end
+    end
+
+    private
 
     def error_response?(response)
       [400, 401, 403, 404, 405, 410, 429, 500, 502, 503].include? response.status

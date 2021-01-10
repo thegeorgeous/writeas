@@ -104,4 +104,41 @@ RSpec.describe Writeas do
     expect(response.created).to eq "2016-07-09T01:43:46Z"
     expect(response.appearance).to eq "norm"
   end
+
+ it "updates a post" do
+    client.conn = conn
+    stubs.post('/api/posts/rf3t35fkax0aw') do |env|
+      expect(env.url.path).to eq('/api/posts/rf3t35fkax0aw')
+      [
+        200,
+        { 'Content-Type': 'application/javascript' },
+        '
+          { "code": 200, 
+            "data": {
+                      "id": "rf3t35fkax0aw", 
+                      "slug": null,
+                      "token": "ozPEuJWYK8L1QsysBUcTUKy9za7yqQ4M",
+                      "appearance": "norm",
+                      "language": "",
+                      "rtl": false,
+                      "created": "2016-07-09T01:43:46Z",
+                      "title": "My First Post",
+                      "body": "My post is updated.",
+                      "tags": []
+                    }
+          }
+       '
+      ]
+    end
+
+    response = client.update_post(
+      post_id: 'rf3t35fkax0aw', 
+      body: "My post is updated.", 
+      token: "ozPEuJWYK8L1QsysBUcTUKy9za7yqQ4M"
+    )
+
+    expect(response.code).to eq 200
+    expect(response.title).to eq "My First Post"
+    expect(response.body).to eq "My post is updated."
+  end
 end
