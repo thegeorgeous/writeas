@@ -1,56 +1,44 @@
-require 'json'
-require_relative './client_error'
-
 module Writeas
-  class Collection < Response
+  class Collection
     attr_reader :alias, :title, :description, :style_sheet,
                 :email, :views, :total_posts, :public
 
     COLLECTIONS_ENDPOINT = "/api/collections"
 
-    def initialize(response_body)
-      super(response_body)
-      @alias = @data["alias"]
-      @title = @data["title"]
-      @description = @data["description"]
-      @style_sheet = @data["style_sheet"]
-      @email = @data["email"]
-      @public = @data["public"]
-      @views = @data["views"]
-      @total_posts = @data["total_posts"]
+    def initialize(data: data)
+      @alias = data["alias"]
+      @title = data["title"]
+      @description = data["description"]
+      @style_sheet = data["style_sheet"]
+      @email = data["email"]
+      @public = data["public"]
+      @views = data["views"]
+      @total_posts = data["total_posts"]
     end
 
     class << self
-      def create(base_url: nil, collection_alias: nil, title: nil)
+      def create(collection_alias: nil, title: nil, client: nil)
+        conn = client || default_client
         body = {
           alias: collection_alias,
           title: title
         }
 
-        response = client.post("/api/collections", body.to_json)
-        if error_response?(response)
-          body = JSON.parse(response.body)
-          raise Writeas::ClientError.new(body["error_msg"], body["code"])
-        else
-          collection = self.new(response.body)
-          return collection
-        end
+        response = conn.post(endpoint: "#{COLLECTIONS_ENDPOINT}", body: body)
+
+        return self.new(data: response.data)
       end
 
-      def retrieve(collection_alias:, base_url: nil)
-        response = client(base_url).get("/api/collections/#{collection_alias}")
+      def retrieve(collection_alias:, client: nil)
+        conn = client || default_client
+        response = conn.get(endpoint: "#{COLLECTIONS_ENDPOINT}/#{collection_alias}")
 
-        if error_response?(response)
-          body = JSON.parse(response.body)
-          raise Writeas::ClientError.new(body["error_msg"], body["code"])
-        else
-          collection = self.new(response.body)
-          return collection
-        end
+        return self.new(data: response.data)
       end
 
       def update(collection_alias:, title: nil, description: nil, stylesheet: nil,
-                 script: nil, visibility: nil, pass: nil, mathjax: nil, base_url: nil)
+                 script: nil, visibility: nil, pass: nil, mathjax: nil, client: nil)
+        conn = client || default_client
         body = {
           title: title,
           description: description,
@@ -61,31 +49,21 @@ module Writeas
           mathjax: mathjax
         }
 
-        response = client(base_url).post("/api/collections/#{collection_alias}", body.to_json)
-
-        if error_response?(response)
-          body = JSON.parse(response.body)
-          raise Writeas::ClientError.new(body["error_msg"], body["code"])
-        else
-          collection = self.new(response.body)
-          return collection
-        end
+        response = conn.post(endpoint: "#{COLLECTIONS_ENDPOINT}/#{collection_alias}", body: body)
+        return self.new(data: response.data)
       end
 
-      def delete(collection_alias:, base_url: nil)
-        response = client(base_url).delete("/api/collections/#{collection_alias}")
-        if error_response?(response)
-          body = JSON.parse(response.body)
-          raise Writeas::ClientError.new(body["error_msg"], body["code"])
-        else
-          return true
-        end
+      def delete(collection_alias:, client: nil)
+        conn = client || default_client
+
+        conn.delete(endpoint: "#{COLLECTIONS_ENDPOINT}/#{collection_alias}")
+        return true
       end
 
       private
 
-      def client(base_url: nil)
-        Writeas::Client.new(base_url).conn
+      def default_client
+        Client.new
       end
 
       def error_response?(response)
