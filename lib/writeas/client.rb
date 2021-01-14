@@ -24,8 +24,8 @@ module Writeas
       end
     end
 
-    def get(endpoint:)
-      response = @conn.get(endpoint)
+    def get(endpoint:, body: nil)
+      response = @conn.get(endpoint, body)
 
       if error_response?(response)
         response_body = JSON.parse(response.body)

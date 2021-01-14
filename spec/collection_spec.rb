@@ -155,4 +155,89 @@ RSpec.describe Writeas::Collection do
       expect(post.appearance).to eq "norm"
     end
   end
+
+  describe '.retrieve_post' do
+    it "retrieves a collection post" do
+      stubs.get('/api/collections/new-blog/posts/my-first-post') do |env|
+        expect(env.url.path).to eq('/api/collections/new-blog/posts/my-first-post')
+        [
+          200,
+          { 'Content-Type': 'application/json' },
+          {
+            "code" => 200,
+            "data" => {
+                      "id" => "hjb7cvwaevy9eayp",
+                      "slug" => "my-first-post",
+                      "appearance" => "norm",
+                      "language" => "",
+                      "rtl" => false,
+                      "created" => "2016-07-09T14:29:33Z",
+                      "title" => "My First Post",
+                      "body" => "This is a blog post.",
+                      "tags" => [],
+                      "views" => 0
+                   }
+          }
+
+        ]
+      end
+
+
+      client.conn = conn
+
+      post = described_class.retrieve_post(collection_alias: "new-blog", slug: "my-first-post", client: client)
+
+      expect(post.title).to eq "My First Post"
+      expect(post.body).to eq "This is a blog post."
+      expect(post.created).to eq "2016-07-09T14:29:33Z"
+      expect(post.appearance).to eq "norm"
+    end
+  end
+
+  describe '.retrieve_posts' do
+    it "retrieves a list of collection posts" do
+      stubs.get('/api/collections/new-blog/posts') do |env|
+        expect(env.url.path).to eq('/api/collections/new-blog/posts')
+        [
+          200,
+          { 'Content-Type': 'application/json' },
+          {
+            "code" => 200,
+            "data" => {  
+                      "alias" => "new-blog",
+                      "title" => "The Best Blog Ever",
+                      "description" => "",
+                      "style_sheet" => "",
+                      "private" => false,
+                      "total_posts" => 1,
+                      "posts" => [
+                                 {
+                                    "id" => "hjb7cvwaevy9eayp",
+                                    "slug" => "my-first-post",
+                                    "appearance" => "norm",
+                                    "language" => "",
+                                    "rtl" => false,
+                                    "created" => "2016-07-09T14:29:33Z",
+                                    "title" => "My First Post",
+                                    "body" => "This is a blog post.",
+                                    "tags" => [],
+                                    "views" => 0
+                                 }
+                               ]
+                   }
+          }
+        ]
+      end
+
+
+      client.conn = conn
+
+      collection = described_class.retrieve_posts(collection_alias: "new-blog", client: client)
+
+      expect(collection.alias).to eq "new-blog"
+      expect(collection.title).to eq "The Best Blog Ever"
+      expect(collection.posts.count).to eq 1
+      expect(collection.posts.first.id).to eq "hjb7cvwaevy9eayp" 
+    end
+  end
 end

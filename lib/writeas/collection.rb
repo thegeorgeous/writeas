@@ -1,7 +1,7 @@
 module Writeas
   class Collection
     attr_reader :alias, :title, :description, :style_sheet,
-                :email, :views, :total_posts, :public
+                :email, :views, :total_posts, :public, :posts
 
     COLLECTIONS_ENDPOINT = "/api/collections"
 
@@ -14,6 +14,12 @@ module Writeas
       @public = data["public"]
       @views = data["views"]
       @total_posts = data["total_posts"]
+      @posts = []
+      if @total_posts && @total_posts > 0
+        data["posts"].each do |post| 
+          @posts << Post.new(data: post)
+        end
+      end
     end
 
     class << self
@@ -77,6 +83,20 @@ module Writeas
         response = conn.post(endpoint: "#{COLLECTIONS_ENDPOINT}/#{collection_alias}/posts", body: request_body)
 
         return Post.new(data: response.data)
+      end
+
+      def retrieve_post(collection_alias:, slug:, client: nil)
+        conn = client || default_client
+
+        response = conn.get(endpoint: "#{COLLECTIONS_ENDPOINT}/#{collection_alias}/posts/#{slug}")
+        return Post.new(data: response.data)
+      end
+
+      def retrieve_posts(collection_alias:, body: nil, client: nil)
+        conn = client || default_client
+
+        response = conn.get(endpoint: "#{COLLECTIONS_ENDPOINT}/#{collection_alias}/posts")
+        return self.new(data: response.data)
       end
 
       private
