@@ -1,7 +1,4 @@
-require 'faraday'
-require 'faraday_middleware'
 require_relative './client_error'
-require_relative './markdown_response'
 require_relative './post'
 
 module Writeas
@@ -18,20 +15,16 @@ module Writeas
       end
     end
 
-    def render_markdown(raw_body)
-      body = {
-        raw_body: raw_body
-      }
 
-      response = @conn.post('/api/markdown', body.to_json)
+    def post(endpoint:, body: nil)
+      response = @conn.post(endpoint, body.to_json)
 
       if error_response?(response)
-        raise ClientError.new(response.reason_phrase, response.status)
+        response_body = JSON.parse(response.body)
+        raise ClientError.new(response_body["error_msg"], response_body["code"])
       else
-        client_response = Writeas::MarkdownResponse.new(response.body)
+        return Response.new(response.body)
       end
-
-      return client_response
     end
 
     def publish_post(body:, title: nil, font: nil, lang: nil, rtl: nil, created: nil, crosspost: nil)

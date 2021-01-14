@@ -1,13 +1,10 @@
-# lib/response.rb
-
 module Writeas
   class Response
-    attr_reader :code
+    attr_reader :code, :data
 
     def initialize(response_body)
-      parsed_body = JSON.parse(response_body)
-      @code = parsed_body["code"]
-      @data = parsed_body["data"]
+      @code = response_body["code"]
+      @data = response_body["data"]
     end
   end
 end

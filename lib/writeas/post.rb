@@ -1,5 +1,5 @@
 module Writeas
-  class Post < Response
+  class Post
     attr_reader :id, :slug, :token, :appearance, :language, :rtl, :created, 
                 :title, :body, :tags
 
