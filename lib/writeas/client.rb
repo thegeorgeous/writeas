@@ -1,6 +1,3 @@
-require_relative './client_error'
-require_relative './post'
-
 module Writeas
   class Client
     attr_accessor :base_url, :conn
@@ -27,63 +24,23 @@ module Writeas
       end
     end
 
-    def publish_post(body:, title: nil, font: nil, lang: nil, rtl: nil, created: nil, crosspost: nil)
-      request_body = {
-        body: body,
-        title: title,
-        font: font,
-        lang: lang,
-        rtl: rtl,
-        created: created,
-        crosspost: crosspost
-      }
-
-      response = @conn.post('/api/posts', request_body.to_json)
+    def get(endpoint:)
+      response = @conn.get(endpoint)
 
       if error_response?(response)
-        raise ClientError.new(response.reason_phrase, response.status)
+        response_body = JSON.parse(response.body)
+        raise ClientError.new(response_body["error_msg"], response_body["code"])
       else
-        post = Writeas::Post.new(response.body)
-        return post
+        return Response.new(response.body)
       end
     end
 
-    def retrieve_post(post_id:)
-      response = @conn.get("/api/posts/#{post_id}")
+    def delete(endpoint:, body: nil)
+      response = @conn.delete(endpoint, body)
 
       if error_response?(response)
-        raise ClientError.new(response.reason_phrase, response.status)
-      else
-        post = Writeas::Post.new(response.body)
-        return post
-      end
-    end
-
-    def update_post(post_id:, body:, token:, title: nil, font: nil, lang: nil, rtl: nil)
-      request_body = {
-        body: body,
-        token: token,
-        title: title,
-        font: font,
-        lang: lang,
-        rtl: rtl
-      }
-
-      response = @conn.post("/api/posts/#{post_id}", request_body.to_json)
-
-      if error_response?(response)
-        raise ClientError.new(response.reason_phrase, response.status)
-      else
-        post = Writeas::Post.new(response.body)
-        return post
-      end
-    end
-
-    def delete_post(post_id:, token:)
-      response = @conn.delete("/api/posts/#{post_id}", {token: token})
-
-      if error_response?(response)
-        raise ClientError.new(response.reason_phrase, response.status)
+        response_body = JSON.parse(response.body)
+        raise ClientError.new(response_body["error_msg"], response_body["code"])
       else
         return true
       end
