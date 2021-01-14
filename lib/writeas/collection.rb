@@ -1,5 +1,5 @@
-require_relative './client_error'
 require 'json'
+require_relative './client_error'
 
 module Writeas
   class Collection < Response
@@ -49,8 +49,41 @@ module Writeas
         end
       end
 
+      def update(collection_alias:, title: nil, description: nil, stylesheet: nil,
+                 script: nil, visibility: nil, pass: nil, mathjax: nil, base_url: nil)
+        body = {
+          title: title,
+          description: description,
+          stylesheet: stylesheet,
+          script: script,
+          visibility: visibility,
+          pass: pass,
+          mathjax: mathjax
+        }
+
+        response = client(base_url).post("/api/collections/#{collection_alias}", body.to_json)
+
+        if error_response?(response)
+          body = JSON.parse(response.body)
+          raise Writeas::ClientError.new(body["error_msg"], body["code"])
+        else
+          collection = self.new(response.body)
+          return collection
+        end
+      end
+
+      def delete(collection_alias:, base_url: nil)
+        response = client(base_url).delete("/api/collections/#{collection_alias}")
+        if error_response?(response)
+          body = JSON.parse(response.body)
+          raise Writeas::ClientError.new(body["error_msg"], body["code"])
+        else
+          return true
+        end
+      end
+
       private
-     
+
       def client(base_url: nil)
         Writeas::Client.new(base_url).conn
       end
