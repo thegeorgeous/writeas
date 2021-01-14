@@ -5,7 +5,7 @@ module Writeas
 
     COLLECTIONS_ENDPOINT = "/api/collections"
 
-    def initialize(data: data)
+    def initialize(data:)
       @alias = data["alias"]
       @title = data["title"]
       @description = data["description"]
