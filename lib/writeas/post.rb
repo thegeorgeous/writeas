@@ -3,7 +3,7 @@ module Writeas
     POST_ENDPOINT = "/api/posts"
 
     attr_reader :id, :slug, :token, :appearance, :language, :rtl, :created, 
-                :title, :body, :tags
+                :title, :body, :tags, :collection
 
     def initialize(data:)
       @id = data["id"]
@@ -16,6 +16,9 @@ module Writeas
       @title = data["title"]
       @body = data["body"]
       @tags = data["tags"]
+      if data["collection"]
+        @collection = Collection.new(data: data["collection"])
+      end
     end
 
     class << self

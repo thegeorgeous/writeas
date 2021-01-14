@@ -60,6 +60,25 @@ module Writeas
         return true
       end
 
+      def publish_post(collection_alias:, body:, title: nil, font: nil,
+                       lang: nil, rtl: nil, created: nil, crosspost: nil,
+                       client: nil)
+        conn = client || default_client
+        request_body = {
+          body: body,
+          title: title,
+          font: font,
+          lang: lang,
+          rtl: rtl,
+          created: created,
+          crosspost: crosspost
+        }
+
+        response = conn.post(endpoint: "#{COLLECTIONS_ENDPOINT}/#{collection_alias}/posts", body: request_body)
+
+        return Post.new(data: response.data)
+      end
+
       private
 
       def default_client

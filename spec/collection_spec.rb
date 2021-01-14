@@ -108,4 +108,51 @@ RSpec.describe Writeas::Collection do
 
     expect(response).to be_truthy
   end
+
+  describe '.publish_post' do
+    it "publishes a post" do
+      body = { body: "This is a post.", title: "My First Post" }
+
+      stubs.post('/api/collections/new-blog/posts') do |env|
+        expect(env.url.path).to eq('/api/collections/new-blog/posts')
+        [
+          200,
+          { 'Content-Type': 'application/json' },
+          { "code" => 201,
+            "data" => {
+              "id" => "rf3t35fkax0aw",
+              "slug" => nil,
+              "token" => "ozPEuJWYK8L1QsysBUcTUKy9za7yqQ4M",
+              "appearance" => "norm",
+              "language" => "",
+              "rtl" => false,
+              "created" => "2016-07-09T01:43:46Z",
+              "title" =>"My First Post",
+              "body" =>  "This is a post.",
+              "tags" => [],
+              "collection" => {
+                "alias" => "new-blog",
+                "title" => "The Best Blog Ever",
+                "description" => "",
+                "style_sheet" => "",
+                "public" => true,
+                "url" => "https://write.as/new-blog/"
+              }
+            }
+          }
+        ]
+      end
+
+
+      client.conn = conn
+
+      post = described_class.publish_post(collection_alias: "new-blog", body: "This is a post.", title: "My First Post", client: client)
+
+      expect(post.title).to eq "My First Post"
+      expect(post.body).to eq "This is a post."
+      expect(post.token).to eq "ozPEuJWYK8L1QsysBUcTUKy9za7yqQ4M"
+      expect(post.created).to eq "2016-07-09T01:43:46Z"
+      expect(post.appearance).to eq "norm"
+    end
+  end
 end
