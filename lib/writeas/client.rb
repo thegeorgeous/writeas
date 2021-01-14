@@ -17,7 +17,7 @@ module Writeas
       response = @conn.post(endpoint, body.to_json)
 
       if error_response?(response)
-        response_body = JSON.parse(response.body)
+        response_body = response.body
         raise ClientError.new(response_body["error_msg"], response_body["code"])
       else
         return Response.new(response.body)
@@ -28,7 +28,7 @@ module Writeas
       response = @conn.get(endpoint, body)
 
       if error_response?(response)
-        response_body = JSON.parse(response.body)
+        response_body = response.body
         raise ClientError.new(response_body["error_msg"], response_body["code"])
       else
         return Response.new(response.body)
@@ -39,7 +39,7 @@ module Writeas
       response = @conn.delete(endpoint, body)
 
       if error_response?(response)
-        response_body = JSON.parse(response.body)
+        response_body = response.body
         raise ClientError.new(response_body["error_msg"], response_body["code"])
       else
         return true
