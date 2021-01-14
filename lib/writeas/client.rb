@@ -8,8 +8,8 @@ module Writeas
   class Client
     attr_accessor :base_url, :conn
 
-    def initialize
-      @base_url = "https://write.as/"
+    def initialize(base_url=nil)
+      @base_url = base_url || "https://write.as/"
 
       @conn ||= Faraday.new(@base_url) do |conf|
         conf.response :json
